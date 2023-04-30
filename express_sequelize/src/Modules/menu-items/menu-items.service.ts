@@ -14,7 +14,7 @@ export class MenuItemsService {
 
     const buildMenu = (
       items: MenuItem[],
-      parentId: number | null
+      parentId: number | null = null
     ): IMenuItem[] => {
       const menu = items.filter((item) => item.parentId === parentId);
       return menu.map((item) => {
@@ -26,7 +26,7 @@ export class MenuItemsService {
       });
     };
 
-    const menuItems = buildMenu(menus, null);
+    const menuItems = buildMenu(menus);
 
     return menuItems;
   }
