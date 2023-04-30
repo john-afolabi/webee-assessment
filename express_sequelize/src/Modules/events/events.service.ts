@@ -7,20 +7,13 @@ export class EventsService {
     return await Event.findAll();
   }
 
-
-  async getEventsWithWorkshops() {
-    const events = await Event.findAll({raw: true})
-    const workshops = await Workshop.findAll({raw: true})
- 
-    const eventsWithWorkshops = events.map(event => {
-      const eventWorkshops = workshops.filter(workshop => workshop.eventId === event.id)  
-      return {
-        ...event,
-        workshops: eventWorkshops
-      }
-    })
   
-    return eventsWithWorkshops
+  async getEventsWithWorkshops() {
+    const eventsWithWorkshops = await Event.findAll({
+      include: Workshop
+    });
+  
+    return eventsWithWorkshops;
   }
 
   /* TODO: complete getFutureEventWithWorkshops so that it returns events with workshops, that have not yet started

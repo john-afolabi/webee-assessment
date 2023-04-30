@@ -4,6 +4,8 @@ import { Application } from "express";
 import http from "http";
 import { dataSourceOptions } from "./conf/datasource";
 import { Sequelize } from "sequelize-typescript";
+import Event from './Modules/events/entities/event.entity';
+import Workshop from './Modules/events/entities/workshop.entity';
 
 class App {
     public readonly app: express.Application;
@@ -38,12 +40,17 @@ class App {
     private async initializeControllers() {
         this.dataSource = new Sequelize(dataSourceOptions);
         await this.dataSource.authenticate();
+
+        
+        this.dataSource.model(Event).hasMany(Workshop)
+        this.dataSource.model(Workshop).belongsTo(Event, {foreignKey: 'eventId'})
+
         this.controllers = this.controllersCallback(this);
         this.controllers.forEach((controller) => {
             this.app.use('/', controller.router);
         });
     }
-
+ 
     public async close() {
         if (this.server) {
             this.server.close();
