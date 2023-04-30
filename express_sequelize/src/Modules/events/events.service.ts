@@ -13,45 +13,24 @@ export class EventsService {
         model: Workshop,
         as: "workshops",
         attributes: { exclude: ["EventId"] },
-        order: [["id", "ASC"]],
       },
-      order: [[{model: Workshop, as: "workshops"}, "id", "ASC"]],
+      order: [[{ model: Workshop, as: "workshops" }, "id", "ASC"]],
     });
 
     return eventsWithWorkshops;
   }
 
-  
   async getFutureEventWithWorkshops() {
     const futureEventsWithWorkshops = await Event.findAll({
-      include: [
-        {
-          model: Workshop,
-          as: 'workshops',
-          attributes: { exclude: ["EventId"] },
-          where: {
-            start: {
-              [Op.gt]: new Date(),
-            },
-          },
+      include: {
+        model: Workshop,
+        as: "workshops",
+        where: {
+          start: { [Op.gte]: new Date() },
         },
-      ],
-      attributes: [
-        "id",
-        "name",
-        "createdAt",
-        [
-          Sequelize.fn("min", Sequelize.col("Workshops.start")),
-          "firstWorkshopStart",
-        ],
-      ],
-      group: ["Event.id"],
-      having: {
-        firstWorkshopStart: {
-          [Op.gt]: new Date(),
-        },
+        attributes: { exclude: ["EventId"] },
       },
-      order: [[{model: Workshop, as: "workshops"}, "id", "ASC"]],
+      order: [[{ model: Workshop, as: "workshops" }, "id", "ASC"]],
     });
 
     return futureEventsWithWorkshops;
