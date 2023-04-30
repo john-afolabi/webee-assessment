@@ -42,7 +42,7 @@ class App {
         await this.dataSource.authenticate();
 
         
-        this.dataSource.model(Event).hasMany(Workshop)
+        this.dataSource.model(Event).hasMany(Workshop, {as: 'workshops'})
         this.dataSource.model(Workshop).belongsTo(Event, {foreignKey: 'eventId'})
 
         this.controllers = this.controllersCallback(this);

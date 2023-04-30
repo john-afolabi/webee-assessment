@@ -1,18 +1,23 @@
-import Event from './entities/event.entity';
-import Workshop from "./entities/workshop.entity"
+import { Op, Sequelize } from "sequelize";
+import Event from "./entities/event.entity";
+import Workshop from "./entities/workshop.entity";
 
 export class EventsService {
-
   async getWarmupEvents() {
     return await Event.findAll();
   }
 
-  
   async getEventsWithWorkshops() {
     const eventsWithWorkshops = await Event.findAll({
-      include: Workshop
+      include: {
+        model: Workshop,
+        as: "workshops",
+        attributes: { exclude: ["EventId"] },
+        order: [["id", "ASC"]],
+      },
+      order: [[{model: Workshop, as: "workshops"}, "id", "ASC"]],
     });
-  
+
     return eventsWithWorkshops;
   }
 
@@ -83,6 +88,34 @@ export class EventsService {
     ```
      */
   async getFutureEventWithWorkshops() {
-  // return await Event.findAll({})
+    const futureEventsWithWorkshops = await Event.findAll({
+      include: [
+        {
+          model: Workshop,
+          where: {
+            start: {
+              [Op.gt]: new Date(),
+            },
+          },
+        },
+      ],
+      attributes: [
+        "id",
+        "name",
+        "createdAt",
+        [
+          Sequelize.fn("min", Sequelize.col("Workshops.start")),
+          "firstWorkshopStart",
+        ],
+      ],
+      group: ["Event.id"],
+      having: {
+        firstWorkshopStart: {
+          [Op.gt]: new Date(),
+        },
+      },
+    });
+
+    return futureEventsWithWorkshops;
   }
 }
